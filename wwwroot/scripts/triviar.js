@@ -9,11 +9,6 @@ connection.on("playerCountUpdated", (currentUserCount) => {
     currentPlayers.textContent = currentUserCount;
 });
 
-connection.on("receiveQuestion", (question) => { 
-    const currentPlayers = document.getElementById("currentPlayers");
-    currentPlayers.textContent = currentUserCount;
-});
-
 function playerLogin()
 {
     connection.send("PlayerLogin").catch(err => console.error)
