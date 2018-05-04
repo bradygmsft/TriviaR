@@ -1,0 +1,122 @@
+﻿@page
+@model AdminModel
+@{
+    ViewData["Title"] = "Admin";
+}
+<p>Use the form below to start and stop games and to push questions to players.</p>
+
+<h2>Game Controls & Statistics</h2>
+
+<div class="ui grid">
+  <div class="eight wide column">
+    <div class="ui toggle checkbox">
+        <input type="checkbox" name="gameStarted" id="gameStarted" onclick="toggleGameStarted();"/>
+        <label id="gameStatus">Start Game</label>
+    </div>
+    <p></p>
+    <div class="ui toggle checkbox">
+        <input type="checkbox" name="showAnswers" id="showAnswers" onclick="toggleAnswers();"/>
+        <label id="answersOn">Let me see the answers<br/>(players won't be able to see these)</label>
+    </div>
+  </div>
+</div>
+
+<h2>Question Queue</h2>
+<div id="questions">
+@{
+    foreach (var question in Model.Questions)
+    {
+    <div class="ui segment sixteen wide column question" data-questionCard="@question.id">
+        <div class="content">
+            <div class="header">@question.text</div>
+            <div class="ui list">
+        @{
+            for(int i=0; i<question.answers.Length; i++)
+            {
+                <div class="item">
+                    <input disabled="disabled" type="radio" name="@question.id" value="@i" @{ if(i == question.correctAnswerIndex) { <text>data-isCorrect="true"</text> }}>
+                    <label>@question.answers[i]</label>
+                </div>
+            }
+        }
+            </div>
+            <button disabled="disabled" class="ui button question-push-button" data-questionId="@question.id" onclick="pushQuestion(@question.id);">
+            Push to Players
+            </button>
+        </div>
+    </div>
+    }
+}
+</div>
+
+<script lang="javascript">
+    function pushQuestion(questionId)
+    {
+        console.log('pushQuestion(' + questionId + ')');
+        var query = "[data-questionCard='" + questionId + "']";
+        console.log(query);
+        var node = document.querySelectorAll(query);
+        console.log(node);
+        document.getElementById('questions').removeChild(node[0]);
+        endGameIfNoMoreQuestionsInQueue();
+    }
+
+    function endGameIfNoMoreQuestionsInQueue()
+    {
+        if(document.getElementsByClassName('question').length == 0)
+        {
+            document.getElementById('gameStarted').checked = false;
+            document.getElementById('gameStarted').setAttribute('disabled','disabled');
+            document.getElementById('showAnswers').setAttribute('disabled','disabled');
+            toggleGameStarted();
+        }
+    }
+
+    function gameStarted()
+    {
+        pushButtons = document.getElementsByClassName('question-push-button');
+        
+        for (x = 0; x < pushButtons.length; x++) {
+            pushButtons[x].removeAttribute('disabled');
+        }
+    }
+
+    function gameStopped()
+    {
+        pushButtons = document.getElementsByClassName('question-push-button');
+        
+        for (x = 0; x < pushButtons.length; x++) {
+            pushButtons[x].setAttribute('disabled', "disabled");
+        }
+    }
+
+    function toggleAnswers()
+    {
+        if (document.getElementById('showAnswers').checked) 
+        {
+            console.log('turn them on');
+            for(i=0; i<document.querySelectorAll('[data-isCorrect]').length; i++)
+                document.querySelectorAll('[data-isCorrect]')[i].checked = true;
+        }
+        else
+        {
+            console.log('turn them off');
+            for(i=0; i<document.querySelectorAll('[data-isCorrect]').length; i++)
+                document.querySelectorAll('[data-isCorrect]')[i].checked = false;
+        }
+    }
+
+    function toggleGameStarted()
+    {
+        if (document.getElementById('gameStarted').checked) 
+        {
+            console.log('game on');
+            gameStarted();
+        } 
+        else 
+        {
+            console.log('game off');
+            gameStopped();
+        }
+    }
+</script>

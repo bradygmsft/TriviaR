@@ -1,0 +1,38 @@
+﻿[
+  {
+    "id": 1,
+    "text": "What color is the Dotnet-bot's belt?",
+    "answers": [
+      "Purple",
+      "Pink",
+      "White",
+      "Dotnet-bot doesn't wear a belt",
+      "Dotnet-bot has a belt with all those colors but doesn't wear it all the time"
+    ],
+    "correctAnswerIndex": 4
+  },
+  {
+    "id": 2,
+    "text": "How many contributions outside Microsoft have been made to .NET Foundation open source projects like .NET Core?",
+    "answers": [
+      "1,000",
+      "5,000",
+      "10,000",
+      "15,000",
+      "Over 25,000"
+    ],
+    "correctAnswerIndex": 4
+  },
+  {
+    "id": 3,
+    "text": "What year did ECMA-335 first become a standard?",
+    "answers": [
+      "1998",
+      "2001",
+      "2008",
+      "2012",
+      "2014"
+    ],
+    "correctAnswerIndex": 1
+  }
+]
