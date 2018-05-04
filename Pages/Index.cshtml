@@ -26,3 +26,9 @@
 
 <script src="~/scripts/signalr.js"></script>
 <script src="~/scripts/triviar.js"></script>
+<script lang="javascript">
+    connection
+        .start()
+        .then(() => playerLogin())
+        .catch(err => console.error);
+</script>

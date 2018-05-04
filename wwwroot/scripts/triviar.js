@@ -5,16 +5,21 @@ const connection = new signalR.HubConnection(
     });
 
 connection.on("playerCountUpdated", (currentUserCount) => { 
-    console.log(currentUserCount);
     const currentPlayers = document.getElementById("currentPlayers");
     currentPlayers.textContent = currentUserCount;
 });
 
 connection.on("receiveQuestion", (question) => { 
-    console.log(currentUserCount);
     const currentPlayers = document.getElementById("currentPlayers");
     currentPlayers.textContent = currentUserCount;
 });
+
+function playerLogin()
+{
+    connection.send("PlayerLogin").catch(err => console.error)
+    console.log('playerLogin');
+}
+
 
 /*
 document.getElementById("sendButton").addEventListener("click", event => {
@@ -24,5 +29,3 @@ document.getElementById("sendButton").addEventListener("click", event => {
     event.preventDefault();
 });
 */
-
-connection.start().catch(err => console.error);

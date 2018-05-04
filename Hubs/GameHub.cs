@@ -17,18 +17,17 @@ namespace TriviaR.Hubs
 
         static int CurrentUserCount { get; set; }
 
-        public override Task OnConnectedAsync()
-        {
-            CurrentUserCount += 1;
-            Clients.All.SendAsync("playerCountUpdated", CurrentUserCount);
-            return base.OnConnectedAsync();
-        }
-
         public override Task OnDisconnectedAsync(Exception exception)
         {
             CurrentUserCount -= 1;
             Clients.All.SendAsync("playerCountUpdated", CurrentUserCount);
             return base.OnDisconnectedAsync(exception);
+        }
+
+        public async void PlayerLogin()
+        {
+            CurrentUserCount += 1;
+            await Clients.All.SendAsync("playerCountUpdated", CurrentUserCount);
         }
 
         public async void PushQuestion(int id)
