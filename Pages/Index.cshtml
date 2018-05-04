@@ -24,6 +24,35 @@
     </div>
 </div>
 
+<div id="questionTemplate" style="display: none">
+    <div class="ui header">{{question}}</div>
+    <div class="ui list">
+    {{#answers}}
+    <div class="item" id="answerList">
+        <input type="radio" name="answer"/>
+        <label>{{this}}</label>
+    </div>
+    {{/answers}}
+    </div>
+</div>
+
+<div class="ui modal">
+  <div class="header">
+    Next Question
+  </div>
+  <div class="content">
+    <div class="description" id="questionContainer">
+    </div>
+  </div>
+  <div class="actions">
+    <div class="ui positive right labeled icon button">
+      OK
+      <i class="checkmark icon"></i>
+    </div>
+  </div>
+</div>
+
 <script src="~/scripts/signalr.js"></script>
 <script src="~/scripts/triviar.js"></script>
 <script src="~/scripts/triviar-player.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.11/handlebars.min.js"></script>

@@ -31,11 +31,11 @@ namespace TriviaR.Hubs
             await Clients.All.SendAsync("playerCountUpdated", CurrentUserCount);
         }
 
-        public async void PushQuestion(int id)
+        public async void PushQuestion(int questionId)
         {
             var question = _questionDataSource
                 .GetQuestions().
-                    First(x => x.id == id);
+                    First(x => x.id == questionId);
 
             await Clients.All.SendAsync("receiveQuestion", new {
                 question = question.text,

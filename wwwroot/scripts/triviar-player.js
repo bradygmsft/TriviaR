@@ -1,5 +1,11 @@
 connection.on("receiveQuestion", (question) => { 
     console.log(question);
+    var source = $('#questionTemplate').html();
+    var template = Handlebars.compile(source);
+    var result = template(question);
+    $('#questionContainer').html(result);
+    $('.ui.modal')
+        .modal('show');
 });
 
 connection.on("gameStarted", (questionId) => { 
@@ -14,4 +20,3 @@ connection
     .start()
     .then(() => playerLogin())
     .catch(err => console.error);
-

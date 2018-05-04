@@ -14,13 +14,3 @@ function playerLogin()
     connection.send("PlayerLogin").catch(err => console.error)
     console.log('playerLogin');
 }
-
-
-/*
-document.getElementById("sendButton").addEventListener("click", event => {
-    const user = document.getElementById("userInput").value;
-    const message = document.getElementById("messageInput").value;    
-    connection.invoke("SendMessage", user, message).catch(err => console.error);
-    event.preventDefault();
-});
-*/
