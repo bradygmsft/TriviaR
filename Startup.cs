@@ -24,6 +24,14 @@ namespace TriviaR
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+            services.AddCors(options => options.AddPolicy("CorsPolicy", 
+            builder => 
+            {
+                builder
+                    .AllowAnyMethod()
+                        .AllowAnyHeader()
+                            .WithOrigins("http://localhost:55830");
+            }));
             services.AddSignalR();
             services.AddTransient<IQuestionDataSource, JsonFileQuestionSource>();
         }
@@ -41,6 +49,7 @@ namespace TriviaR
             }
 
             app.UseStaticFiles();
+            app.UseCors("CorsPolicy");
             app.UseSignalR(routes =>
             {
                 routes.MapHub<GameHub>("/gamehub");

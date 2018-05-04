@@ -19,6 +19,18 @@
         <label id="answersOn">Let me see the answers<br/>(players won't be able to see these)</label>
     </div>
   </div>
+  <div class="eight wide column">
+      <div class="ui statistics">
+        <div class="red statistic">
+            <div class="value" id="currentPlayers">
+                0
+            </div>
+            <div class="label">
+            Players
+            </div>
+        </div>
+    </div>
+  </div>
 </div>
 
 <h2>Question Queue</h2>
@@ -94,9 +106,14 @@
     {
         if (document.getElementById('showAnswers').checked) 
         {
-            console.log('turn them on');
-            for(i=0; i<document.querySelectorAll('[data-isCorrect]').length; i++)
-                document.querySelectorAll('[data-isCorrect]')[i].checked = true;
+            if(confirm('Are you SURE you want to turn them on? If you\'re on screen people will see the answers.') == true)
+            {
+                console.log('turn them on');
+                for(i=0; i<document.querySelectorAll('[data-isCorrect]').length; i++)
+                    document.querySelectorAll('[data-isCorrect]')[i].checked = true;
+            }
+            else
+                document.getElementById('showAnswers').checked = false;
         }
         else
         {
@@ -120,3 +137,5 @@
         }
     }
 </script>
+<script src="~/scripts/signalr.js"></script>
+<script src="~/scripts/triviar.js"></script>

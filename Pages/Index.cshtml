@@ -1,9 +1,28 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Welcome to TriviaR!";
 }
 
-<p>
-    This is the beginning.
-</p>
+<div class="ui grid">
+    <div class="eight wide column">
+        <div class="segment" id="intro">
+            Let's give everyone a moment to hop into the game, and then give Scott and Scott a moment to pick a question.
+        </div>
+    </div>
+    <div class="eight wide column">
+        <div class="ui statistics">
+            <div class="red statistic">
+                <div class="value" id="currentPlayers">
+                0
+                </div>
+                <div class="label">
+                Players
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/scripts/signalr.js"></script>
+<script src="~/scripts/triviar.js"></script>
