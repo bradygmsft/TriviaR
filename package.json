@@ -17,7 +17,7 @@
   },
   "homepage": "https://github.com/bradygmsft/TriviaR#readme",
   "dependencies": {
-    "@aspnet/signalr": "^1.0.0-preview2-final",
+    "@aspnet/signalr": "^1.0.0-rc1-30677",
     "semantic-ui": "^2.3.1"
   }
 }
