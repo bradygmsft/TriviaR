@@ -81,4 +81,31 @@ function toggleAnswers()
     }
 }
 
-connection.start().catch(err => console.error);
+function logAnswer()
+{
+    //questionContainer.questionHeader (get attribute data-id)
+    var questionId = $("#questionContainer").children("#questionHeader").data("id");
+    console.log("questionId:" + questionId);
+}
+
+function adminLogin()
+{
+    connection
+        .send("AdminLogin")
+        .catch(err => console.error);
+}
+
+connection.on("incorrectAnswer", (answerCount) => {
+    document.getElementById("wrongAnswers").innerText = answerCount;
+    console.log("incorrect: " + answerCount);
+});
+
+connection.on("correctAnswer", (answerCount) => {
+    document.getElementById("rightAnswers").innerText = answerCount;
+    console.log("correct: " + answerCount);
+});
+
+connection
+    .start()
+    .then(() => adminLogin())
+    .catch(err => console.error);

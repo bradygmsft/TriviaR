@@ -25,18 +25,46 @@
 </div>
 
 <div id="questionTemplate" style="display: none">
-    <div class="ui header">{{question}}</div>
+    <div class="ui header" id="questionHeader" data-id="{{id}}">{{question}}</div>
     <div class="ui list">
     {{#answers}}
     <div class="item" id="answerList">
-        <input type="radio" name="answer"/>
+        <input type="radio" name="answer" value="{{this}}"/>
         <label>{{this}}</label>
     </div>
     {{/answers}}
     </div>
 </div>
 
-<div class="ui modal">
+<div class="ui modal" id="incorrectDialog">
+    <div class="header">
+        Result:
+    </div>
+    <div class="content">
+        <div class="ui red inverted segment">Incorrect!</div>
+    </div>
+    <div class="actions">
+        <div class="ui negative button">
+        Dang!
+        </div>
+    </div>
+</div>
+
+<div class="ui modal" id="correctDialog">
+    <div class="header">
+        Result:
+    </div>
+    <div class="content">
+        <div class="ui green inverted segment">Correct!</div>
+    </div>
+    <div class="actions">
+        <div class="ui positive button">
+        Cool!
+        </div>
+    </div>
+</div>
+
+<div class="ui modal" id="questionDialog">
   <div class="header">
     Next Question
   </div>
@@ -45,7 +73,7 @@
     </div>
   </div>
   <div class="actions">
-    <div class="ui positive right labeled icon button">
+    <div class="ui positive right labeled icon button" onclick="logAnswer();">
       OK
       <i class="checkmark icon"></i>
     </div>
