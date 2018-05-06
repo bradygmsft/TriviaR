@@ -1,8 +1,8 @@
-const connection = new signalR.HubConnection(
-    "/gamehub", 
-    { 
+const connection = new signalR.HubConnectionBuilder()
+    .withUrl('/gamehub', { 
         logger: signalR.LogLevel.Verbose 
-    });
+    })
+    .build();
 
 connection.on("playerCountUpdated", (currentUserCount) => { 
     const currentPlayers = document.getElementById("currentPlayers");

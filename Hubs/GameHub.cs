@@ -64,7 +64,7 @@ namespace TriviaR.Hubs
 
         public async void AdminLogin()
         {
-            await Groups.AddAsync(this.Context.ConnectionId, AdminGroupName);
+            await Groups.AddToGroupAsync(this.Context.ConnectionId, AdminGroupName);
         }
 
         public async void LogAnswer(int questionId, string answer)
