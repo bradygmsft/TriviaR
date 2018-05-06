@@ -32,8 +32,10 @@ namespace TriviaR
                         .AllowAnyHeader()
                             .WithOrigins("http://localhost:55830");
             }));
-            services.AddSignalR()
+            services
+                .AddSignalR()
                 .AddAzureSignalR();
+
             services.AddTransient<IQuestionDataSource, JsonFileQuestionSource>();
         }
 
