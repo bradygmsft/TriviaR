@@ -1,10 +1,7 @@
 ﻿using Microsoft.AspNetCore.Hosting;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using TriviaR.Models;
 
 namespace TriviaR.Services
@@ -25,7 +22,7 @@ namespace TriviaR.Services
             {
                 return JsonSerializer
                     .Create()
-                        .Deserialize<Question[]>(new JsonTextReader(rdr));
+                    .Deserialize<Question[]>(new JsonTextReader(rdr));
             }
         }
     }

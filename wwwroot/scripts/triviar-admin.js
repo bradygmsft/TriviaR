@@ -1,5 +1,4 @@
-function pushQuestion(questionId)
-{
+function pushQuestion(questionId) {
     console.log('pushQuestion(' + questionId + ')');
     var query = "[data-questionCard='" + questionId + "']";
     console.log(query);
@@ -10,38 +9,32 @@ function pushQuestion(questionId)
 
     connection
         .invoke('PushQuestion', questionId)
-            .catch(err => console.error);
+        .catch(err => console.error);
 }
 
-function endGameIfNoMoreQuestionsInQueue()
-{
-    if(document.getElementsByClassName('question').length == 0)
-    {
+function endGameIfNoMoreQuestionsInQueue() {
+    if (document.getElementsByClassName('question').length == 0) {
         document.getElementById('gameStarted').checked = false;
-        document.getElementById('gameStarted').setAttribute('disabled','disabled');
-        document.getElementById('showAnswers').setAttribute('disabled','disabled');
+        document.getElementById('gameStarted').setAttribute('disabled', 'disabled');
+        document.getElementById('showAnswers').setAttribute('disabled', 'disabled');
         toggleGameStarted();
     }
 }
 
-function toggleGameStarted()
-{
-    if (document.getElementById('gameStarted').checked) 
-    {
+function toggleGameStarted() {
+    if (document.getElementById('gameStarted').checked) {
         console.log('game on');
         gameStarted();
-    } 
-    else 
-    {
+    }
+    else {
         console.log('game off');
         gameStopped();
     }
 }
 
-function gameStarted()
-{
+function gameStarted() {
     pushButtons = document.getElementsByClassName('question-push-button');
-    
+
     for (x = 0; x < pushButtons.length; x++) {
         pushButtons[x].removeAttribute('disabled');
     }
@@ -49,10 +42,9 @@ function gameStarted()
     connection.invoke('StartGame');
 }
 
-function gameStopped()
-{
+function gameStopped() {
     pushButtons = document.getElementsByClassName('question-push-button');
-    
+
     for (x = 0; x < pushButtons.length; x++) {
         pushButtons[x].setAttribute('disabled', "disabled");
     }
@@ -60,39 +52,27 @@ function gameStopped()
     connection.invoke('StopGame');
 }
 
-function toggleAnswers()
-{
-    if (document.getElementById('showAnswers').checked) 
-    {
-        if(confirm('Are you SURE you want to turn them on? If you\'re on screen people will see the answers.') == true)
-        {
+function toggleAnswers() {
+    if (document.getElementById('showAnswers').checked) {
+        if (confirm('Are you SURE you want to turn them on? If you\'re on screen people will see the answers.') == true) {
             console.log('turn them on');
-            for(i=0; i<document.querySelectorAll('[data-isCorrect]').length; i++)
+            for (i = 0; i < document.querySelectorAll('[data-isCorrect]').length; i++)
                 document.querySelectorAll('[data-isCorrect]')[i].checked = true;
         }
         else
             document.getElementById('showAnswers').checked = false;
     }
-    else
-    {
+    else {
         console.log('turn them off');
-        for(i=0; i<document.querySelectorAll('[data-isCorrect]').length; i++)
+        for (i = 0; i < document.querySelectorAll('[data-isCorrect]').length; i++)
             document.querySelectorAll('[data-isCorrect]')[i].checked = false;
     }
 }
 
-function logAnswer()
-{
+function logAnswer() {
     //questionContainer.questionHeader (get attribute data-id)
     var questionId = $("#questionContainer").children("#questionHeader").data("id");
     console.log("questionId:" + questionId);
-}
-
-function adminLogin()
-{
-    connection
-        .send("AdminLogin")
-        .catch(err => console.error);
 }
 
 connection.on("incorrectAnswer", (answerCount) => {
@@ -107,5 +87,5 @@ connection.on("correctAnswer", (answerCount) => {
 
 connection
     .start()
-    .then(() => adminLogin())
-    .catch(err => console.error);
+    .then(() => $("#logo").removeClass("disconnected"))
+    .catch(console.error);

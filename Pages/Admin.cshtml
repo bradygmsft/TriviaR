@@ -3,80 +3,93 @@
 @{
     ViewData["Title"] = "Admin";
 }
+
 <p>Use the form below to start and stop games and to push questions to players.</p>
+
+<h2>Scan this QR Code to participate!</h2>
+
+<div id="qrcode"></div>
 
 <h2>Game Controls & Statistics</h2>
 
 <div class="ui grid">
-  <div class="eight wide column">
-    <div class="ui toggle checkbox">
-        <input type="checkbox" name="gameStarted" id="gameStarted" onclick="toggleGameStarted();"/>
-        <label id="gameStatus">Start Game</label>
-    </div>
-    <p></p>
-    <div class="ui toggle checkbox">
-        <input type="checkbox" name="showAnswers" id="showAnswers" onclick="toggleAnswers();"/>
-        <label id="answersOn">Let me see the answers<br/>(players won't be able to see these)</label>
-    </div>
-  </div>
-  <div class="eight wide column">
-      <div class="ui statistics">
-        <div class="blue statistic">
-            <div class="value" id="currentPlayers">
-                0
-            </div>
-            <div class="label">
-            Players
-            </div>
+    <div class="eight wide column">
+        <div class="ui toggle checkbox">
+            <input type="checkbox" name="gameStarted" id="gameStarted" onclick="toggleGameStarted();" />
+            <label id="gameStatus">Start Game</label>
         </div>
-        <div class="green statistic">
-            <div class="value" id="rightAnswers">
-                0
-            </div>
-            <div class="label">
-            Right
-            </div>
-        </div>
-        <div class="red statistic">
-            <div class="value" id="wrongAnswers">
-                0
-            </div>
-            <div class="label">
-            Wrong
-            </div>
+        <p></p>
+        <div class="ui toggle checkbox">
+            <input type="checkbox" name="showAnswers" id="showAnswers" onclick="toggleAnswers();" />
+            <label id="answersOn">Let me see the answers<br />(players won't be able to see these)</label>
         </div>
     </div>
-  </div>
+    <div class="eight wide column">
+        <div class="ui statistics">
+            <div class="blue statistic">
+                <div class="value" id="currentPlayers">
+                    0
+                </div>
+                <div class="label">
+                    Players
+                </div>
+            </div>
+            <div class="green statistic">
+                <div class="value" id="rightAnswers">
+                    0
+                </div>
+                <div class="label">
+                    Right
+                </div>
+            </div>
+            <div class="red statistic">
+                <div class="value" id="wrongAnswers">
+                    0
+                </div>
+                <div class="label">
+                    Wrong
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <h2>Question Queue</h2>
 <div id="questions">
-@{
-    foreach (var question in Model.Questions)
-    {
-    <div class="ui segment sixteen wide column question" data-questionCard="@question.id">
-        <div class="content">
-            <div class="header">@question.text</div>
-            <div class="ui list">
-        @{
-            for(int i=0; i<question.answers.Length; i++)
-            {
-                <div class="item">
-                    <input disabled="disabled" type="radio" name="@question.id" value="@i" @{ if(i == question.correctAnswerIndex) { <text>data-isCorrect="true"</text> }}>
-                    <label>@question.answers[i]</label>
+    @{
+        foreach (var question in Model.Questions)
+        {
+            <div class="ui segment sixteen wide column question" data-questionCard="@question.id">
+                <div class="content">
+                    <div class="header">@question.text</div>
+                    <div class="ui list">
+                        @{
+                            for (int i = 0; i < question.answers.Length; i++)
+                            {
+                                <div class="item">
+                                    <input disabled="disabled" type="radio" name="@question.id" value="@i" @{ if (i == question.correctAnswerIndex) { <text> data-isCorrect="true" </text>  }}>
+                                    <label>@question.answers[i]</label>
+                                </div>
+                            }
+                        }
+                    </div>
+                    <button disabled="disabled" class="ui button question-push-button" data-questionId="@question.id" onclick="pushQuestion(@question.id);">
+                        Push to Players
+                    </button>
                 </div>
-            }
-        }
             </div>
-            <button disabled="disabled" class="ui button question-push-button" data-questionId="@question.id" onclick="pushQuestion(@question.id);">
-            Push to Players
-            </button>
-        </div>
-    </div>
+        }
     }
-}
 </div>
 
+<script src="~/scripts/qrcode.min.js"></script>
 <script src="~/scripts/signalr.js"></script>
 <script src="~/scripts/triviar.js"></script>
 <script src="~/scripts/triviar-admin.js"></script>
+<script>
+    new QRCode(document.getElementById("qrcode"), {
+        text: window.location.href,
+        width: 384,
+        height: 384,
+    });
+</script>

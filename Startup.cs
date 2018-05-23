@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -23,19 +20,12 @@ namespace TriviaR
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMvc();
-            services.AddCors(options => options.AddPolicy("CorsPolicy", 
-            builder => 
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+            services.AddMvc().AddRazorPagesOptions(options =>
             {
-                builder
-                    .AllowAnyMethod()
-                        .AllowAnyHeader()
-                            .WithOrigins("http://localhost:55830");
-            }));
-            services
-                .AddSignalR()
-                .AddAzureSignalR();
-
+                options.Conventions.AuthorizePage("/Admin");
+            });
+            services.AddSignalR().AddAzureSignalR();
             services.AddTransient<IQuestionDataSource, JsonFileQuestionSource>();
         }
 
@@ -52,7 +42,7 @@ namespace TriviaR
             }
 
             app.UseStaticFiles();
-            app.UseCors("CorsPolicy");
+            app.UseAuthentication();
             app.UseAzureSignalR(routes =>
             {
                 routes.MapHub<GameHub>("/gamehub");

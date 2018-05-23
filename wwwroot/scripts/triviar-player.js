@@ -1,4 +1,4 @@
-connection.on("receiveQuestion", (question) => { 
+connection.on("receiveQuestion", (question) => {
     console.log(question);
     var source = $('#questionTemplate').html();
     var template = Handlebars.compile(source);
@@ -8,31 +8,30 @@ connection.on("receiveQuestion", (question) => {
         .modal('show');
 });
 
-connection.on("gameStarted", (questionId) => { 
+connection.on("gameStarted", (questionId) => {
     document.getElementById("intro").innerText = "Here we go! In a moment they'll pick a question and you'll see it pop up here.";
 });
 
-connection.on("gameStopped", (questionId) => { 
+connection.on("gameStopped", (questionId) => {
     document.getElementById("intro").innerText = "Let's give everyone a moment to hop into the game, and then give Scott and Scott a moment to pick a question.";
 });
 
-connection.on("incorrectAnswer", () => { 
+connection.on("incorrectAnswer", () => {
     $('#incorrectDialog')
         .modal('show');
 });
 
-connection.on("correctAnswer", () => { 
+connection.on("correctAnswer", () => {
     $('#correctDialog')
         .modal('show');
 });
 
 connection
     .start()
-    .then(() => playerLogin())
-    .catch(err => console.error);
+    .then(() => $("#logo").removeClass("disconnected"))
+    .catch(console.error);
 
-function logAnswer()
-{
+function logAnswer() {
     var questionId = 0;
     var answer = "";
     //questionContainer.questionHeader[data-id]

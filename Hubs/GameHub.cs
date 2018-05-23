@@ -1,91 +1,99 @@
 using System;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using TriviaR.Services;
-using System.Linq;
 
 namespace TriviaR.Hubs
 {
     public class GameHub : Hub
     {
-        const string AdminGroupName = "Admins";
+        private const string AdminGroupName = "Admins";
 
-        private readonly IQuestionDataSource _questionDataSource;
+        private readonly IQuestionDataSource questionDataSource;
 
-        public GameHub(IQuestionDataSource questionDataSource)
+        static int currentPlayerCount;
+
+        static int incorrectAnswers;
+
+        static int correctAnswers;
+
+        public GameHub(IQuestionDataSource dataSource)
         {
-            _questionDataSource = questionDataSource;
+            questionDataSource = dataSource;
         }
 
-        static int CurrentUserCount { get; set; }
-
-        static int IncorrectAnswers { get; set; }
-
-        static int CorrectAnswers { get; set; }
+        public override Task OnConnectedAsync()
+        {
+            if (Context.User.Claims.Any(c => c.Type == ClaimTypes.Role && c.Value == "Administrator"))
+            {
+                return Groups.AddToGroupAsync(Context.ConnectionId, AdminGroupName);
+            }
+            else
+            {
+                Interlocked.Increment(ref currentPlayerCount);
+                return Clients.All.SendAsync("playerCountUpdated", currentPlayerCount);
+            }
+        }
 
         public override Task OnDisconnectedAsync(Exception exception)
         {
-            CurrentUserCount -= 1;
-            if(CurrentUserCount < 0) CurrentUserCount = 0;
-            Clients.All.SendAsync("playerCountUpdated", CurrentUserCount);
+            if (!Context.User.Claims.Any(c => c.Type == ClaimTypes.Role && c.Value == "Administrator"))
+            {
+                Interlocked.Decrement(ref currentPlayerCount);
+                return Clients.All.SendAsync("playerCountUpdated", currentPlayerCount);
+            }
+
             return base.OnDisconnectedAsync(exception);
         }
 
-        public async void PlayerLogin()
-        {
-            CurrentUserCount += 1;
-            await Clients.All.SendAsync("playerCountUpdated", CurrentUserCount);
-        }
-
+        [Authorize]
         public async void PushQuestion(int questionId)
         {
-            var question = _questionDataSource
-                .GetQuestions().
-                    First(x => x.id == questionId);
+            var question = questionDataSource.GetQuestions().First(x => x.id == questionId);
 
-            await Clients.All.SendAsync("receiveQuestion", new {
-                question = question.text,
-                answers = question.answers,
-                id = question.id
+            await Clients.All.SendAsync("receiveQuestion", new
+            {
+                question.text,
+                question.answers,
+                question.id
             });
         }
 
+        [Authorize]
         public async void StartGame()
         {
-            CorrectAnswers = 0;
-            IncorrectAnswers = 0;
+            correctAnswers = 0;
+            incorrectAnswers = 0;
             await Clients.All.SendAsync("gameStarted");
         }
 
+        [Authorize]
         public async void StopGame()
         {
             await Clients.All.SendAsync("gameStopped");
         }
 
-        public async void AdminLogin()
-        {
-            await Groups.AddToGroupAsync(this.Context.ConnectionId, AdminGroupName);
-        }
-
         public async void LogAnswer(int questionId, string answer)
         {
-            var question = _questionDataSource
-                .GetQuestions()
-                    .First(x => x.id == questionId);
+            var question = questionDataSource.GetQuestions().First(x => x.id == questionId);
 
             var correctAnswer = question.answers[question.correctAnswerIndex];
-            
-            if(correctAnswer != answer)
+
+            if (correctAnswer != answer)
             {
-                IncorrectAnswers += 1;
+                Interlocked.Increment(ref incorrectAnswers);
                 await Clients.Caller.SendAsync("incorrectAnswer");
-                await Clients.Group(AdminGroupName).SendAsync("incorrectAnswer", IncorrectAnswers);
+                await Clients.Group(AdminGroupName).SendAsync("incorrectAnswer", incorrectAnswers);
             }
             else
             {
-                CorrectAnswers += 1;
+                Interlocked.Increment(ref correctAnswers);
                 await Clients.Caller.SendAsync("correctAnswer");
-                await Clients.Group(AdminGroupName).SendAsync("correctAnswer", CorrectAnswers);
+                await Clients.Group(AdminGroupName).SendAsync("correctAnswer", correctAnswers);
             }
         }
     }
