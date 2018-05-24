@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Security.Claims;
 using TriviaR.Hubs;
 using TriviaR.Services;
 
@@ -21,6 +22,10 @@ namespace TriviaR
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).AddCookie();
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("Admin_Only", policy => policy.RequireClaim(ClaimTypes.Role, "Administrator"));
+            });
             services.AddMvc().AddRazorPagesOptions(options =>
             {
                 options.Conventions.AuthorizePage("/Admin");

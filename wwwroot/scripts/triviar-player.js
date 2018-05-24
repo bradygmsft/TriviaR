@@ -28,7 +28,10 @@ connection.on("correctAnswer", () => {
 
 connection
     .start()
-    .then(() => $("#logo").removeClass("disconnected"))
+    .then(() => {
+        $("#logo").removeClass("disconnected");
+        connection.invoke("PlayerLogin");
+    })
     .catch(console.error);
 
 function logAnswer() {

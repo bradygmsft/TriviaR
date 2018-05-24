@@ -75,17 +75,28 @@ function logAnswer() {
     console.log("questionId:" + questionId);
 }
 
-connection.on("incorrectAnswer", (answerCount) => {
+connection.on("incorrectAnswerUpdated", (answerCount) => {
     document.getElementById("wrongAnswers").innerText = answerCount;
     console.log("incorrect: " + answerCount);
 });
 
-connection.on("correctAnswer", (answerCount) => {
+connection.on("correctAnswerUpdated", (answerCount) => {
     document.getElementById("rightAnswers").innerText = answerCount;
     console.log("correct: " + answerCount);
 });
 
+connection.on("gameStarted", () => {
+    document.getElementById('gameStarted').checked = true;
+});
+
+connection.on("gameStopped", () => {
+    document.getElementById('gameStarted').checked = false;
+});
+
 connection
     .start()
-    .then(() => $("#logo").removeClass("disconnected"))
+    .then(() => {
+        $("#logo").removeClass("disconnected");
+        connection.invoke("AdminLogin");
+    })
     .catch(console.error);
