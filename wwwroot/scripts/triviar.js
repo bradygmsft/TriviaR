@@ -4,13 +4,9 @@ const connection = new signalR.HubConnectionBuilder()
     })
     .build();
 
+connection.onclose(() => $("#logo").addClass("disconnected"));
+
 connection.on("playerCountUpdated", (currentUserCount) => { 
     const currentPlayers = document.getElementById("currentPlayers");
     currentPlayers.textContent = currentUserCount;
 });
-
-function playerLogin()
-{
-    connection.send("PlayerLogin").catch(err => console.error)
-    console.log('playerLogin');
-}

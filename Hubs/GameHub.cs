@@ -1,91 +1,114 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using TriviaR.Services;
-using System.Linq;
 
 namespace TriviaR.Hubs
 {
     public class GameHub : Hub
     {
-        const string AdminGroupName = "Admins";
+        private const string AdminGroupName = "Admins";
 
-        private readonly IQuestionDataSource _questionDataSource;
+        private readonly IQuestionDataSource questionDataSource;
 
-        public GameHub(IQuestionDataSource questionDataSource)
+        private static int currentPlayerCount;
+
+        private static int incorrectAnswers;
+
+        private static int correctAnswers;
+
+        private static HashSet<string> admins = new HashSet<string>();
+
+        private static bool gameStarted;
+
+        public GameHub(IQuestionDataSource dataSource)
         {
-            _questionDataSource = questionDataSource;
+            questionDataSource = dataSource;
         }
-
-        static int CurrentUserCount { get; set; }
-
-        static int IncorrectAnswers { get; set; }
-
-        static int CorrectAnswers { get; set; }
 
         public override Task OnDisconnectedAsync(Exception exception)
         {
-            CurrentUserCount -= 1;
-            if(CurrentUserCount < 0) CurrentUserCount = 0;
-            Clients.All.SendAsync("playerCountUpdated", CurrentUserCount);
+            if (!admins.Remove(Context.ConnectionId))
+            {
+                Interlocked.Decrement(ref currentPlayerCount);
+                // make sure player count won't be negative in case someone didn't call player or admin login
+                if (currentPlayerCount < 0) currentPlayerCount = 0;
+                return Clients.All.SendAsync("playerCountUpdated", currentPlayerCount);
+            }
+
             return base.OnDisconnectedAsync(exception);
         }
 
-        public async void PlayerLogin()
+        public async Task PlayerLogin()
         {
-            CurrentUserCount += 1;
-            await Clients.All.SendAsync("playerCountUpdated", CurrentUserCount);
+            Interlocked.Increment(ref currentPlayerCount);
+            await Clients.All.SendAsync("playerCountUpdated", currentPlayerCount);
+            if (gameStarted) await Clients.Caller.SendAsync("gameStarted");
         }
 
-        public async void PushQuestion(int questionId)
+        [Authorize(Policy = "Admin_Only")]
+        public async Task AdminLogin()
         {
-            var question = _questionDataSource
-                .GetQuestions().
-                    First(x => x.id == questionId);
+            admins.Add(Context.ConnectionId);
+            await Groups.AddToGroupAsync(Context.ConnectionId, AdminGroupName);
+            if (gameStarted) await Clients.Caller.SendAsync("gameStarted");
+            await Clients.Caller.SendAsync("playerCountUpdated", currentPlayerCount);
+            await Clients.Caller.SendAsync("correctAnswerUpdated", correctAnswers);
+            await Clients.Caller.SendAsync("incorrectAnswerUpdated", incorrectAnswers);
+        }
 
-            await Clients.All.SendAsync("receiveQuestion", new {
-                question = question.text,
-                answers = question.answers,
-                id = question.id
+        [Authorize(Policy = "Admin_Only")]
+        public async Task PushQuestion(int questionId)
+        {
+            var question = questionDataSource.GetQuestions().First(x => x.id == questionId);
+
+            await Clients.All.SendAsync("receiveQuestion", new
+            {
+                question.text,
+                question.answers,
+                question.id
             });
         }
 
-        public async void StartGame()
+        [Authorize(Policy = "Admin_Only")]
+        public async Task StartGame()
         {
-            CorrectAnswers = 0;
-            IncorrectAnswers = 0;
+            correctAnswers = 0;
+            incorrectAnswers = 0;
+            gameStarted = true;
+            await Clients.Group(AdminGroupName).SendAsync("correctAnswerUpdated", correctAnswers);
+            await Clients.Group(AdminGroupName).SendAsync("incorrectAnswerUpdated", incorrectAnswers);
             await Clients.All.SendAsync("gameStarted");
         }
 
-        public async void StopGame()
+        [Authorize(Policy = "Admin_Only")]
+        public async Task StopGame()
         {
+            gameStarted = false;
             await Clients.All.SendAsync("gameStopped");
         }
 
-        public async void AdminLogin()
+        public async Task LogAnswer(int questionId, string answer)
         {
-            await Groups.AddToGroupAsync(this.Context.ConnectionId, AdminGroupName);
-        }
-
-        public async void LogAnswer(int questionId, string answer)
-        {
-            var question = _questionDataSource
-                .GetQuestions()
-                    .First(x => x.id == questionId);
+            var question = questionDataSource.GetQuestions().First(x => x.id == questionId);
 
             var correctAnswer = question.answers[question.correctAnswerIndex];
-            
-            if(correctAnswer != answer)
+
+            if (correctAnswer != answer)
             {
-                IncorrectAnswers += 1;
+                Interlocked.Increment(ref incorrectAnswers);
                 await Clients.Caller.SendAsync("incorrectAnswer");
-                await Clients.Group(AdminGroupName).SendAsync("incorrectAnswer", IncorrectAnswers);
+                await Clients.Group(AdminGroupName).SendAsync("incorrectAnswerUpdated", incorrectAnswers);
             }
             else
             {
-                CorrectAnswers += 1;
+                Interlocked.Increment(ref correctAnswers);
                 await Clients.Caller.SendAsync("correctAnswer");
-                await Clients.Group(AdminGroupName).SendAsync("correctAnswer", CorrectAnswers);
+                await Clients.Group(AdminGroupName).SendAsync("correctAnswerUpdated", correctAnswers);
             }
         }
     }
