@@ -18,8 +18,8 @@ namespace TriviaR.Controllers
             adminPassword = configuration["AdminPassword"];
         }
 
-        [HttpGet("AdminLogin")]
-        public async Task<IActionResult> AdminLogin(string password)
+        [HttpGet("Account/Login")]
+        public async Task<IActionResult> AdminLogin(string returnUrl, string password)
         {
             if (password != adminPassword) return new UnauthorizedResult();
 
@@ -40,7 +40,7 @@ namespace TriviaR.Controllers
                 CookieAuthenticationDefaults.AuthenticationScheme,
                 new ClaimsPrincipal(claimsIdentity),
                 authProperties);
-            return Redirect("/Admin");
+            return Redirect(returnUrl ?? "/");
         }
     }
 }
