@@ -24,32 +24,12 @@ function endGameIfNoMoreQuestionsInQueue() {
 function toggleGameStarted() {
     if (document.getElementById('gameStarted').checked) {
         console.log('game on');
-        gameStarted();
+        connection.invoke('StartGame');
     }
     else {
         console.log('game off');
-        gameStopped();
+        connection.invoke('StopGame');
     }
-}
-
-function gameStarted() {
-    pushButtons = document.getElementsByClassName('question-push-button');
-
-    for (x = 0; x < pushButtons.length; x++) {
-        pushButtons[x].removeAttribute('disabled');
-    }
-
-    connection.invoke('StartGame');
-}
-
-function gameStopped() {
-    pushButtons = document.getElementsByClassName('question-push-button');
-
-    for (x = 0; x < pushButtons.length; x++) {
-        pushButtons[x].setAttribute('disabled', "disabled");
-    }
-
-    connection.invoke('StopGame');
 }
 
 function toggleAnswers() {
@@ -87,10 +67,20 @@ connection.on("correctAnswerUpdated", (answerCount) => {
 
 connection.on("gameStarted", () => {
     document.getElementById('gameStarted').checked = true;
+    pushButtons = document.getElementsByClassName('question-push-button');
+
+    for (x = 0; x < pushButtons.length; x++) {
+        pushButtons[x].removeAttribute('disabled');
+    }
 });
 
 connection.on("gameStopped", () => {
     document.getElementById('gameStarted').checked = false;
+    pushButtons = document.getElementsByClassName('question-push-button');
+
+    for (x = 0; x < pushButtons.length; x++) {
+        pushButtons[x].setAttribute('disabled', "disabled");
+    }
 });
 
 connection
